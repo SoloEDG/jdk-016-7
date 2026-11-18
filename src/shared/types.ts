@@ -54,3 +54,29 @@ export interface PoseFace {
   points: Vec3[];
   normal: Vec3;
 }
+/** 比较的度量维度：本折痕旋转 / 父纸面带动 / 总位移 */
+export type DiffMetric = "local" | "carried" | "total";
+/** 同一原始纸面区域（按 face id 对应）在两个版本间的差异 */
+export interface FaceDiff {
+  id: string;
+  /** 当前折痕本身带来的相对旋转角（度），根纸面恒为 0 */
+  localAngle: number;
+  /** 扣除自身折痕旋转后、由父纸面链带动的代表点位移（归一化） */
+  carried: number;
+  /** 代表点在两个版本间的总位移（归一化） */
+  total: number;
+}
+export interface Correspondence {
+  /** 两侧都存在、可比较的纸面 id（按同一张原始纸的区域对应） */
+  matched: string[];
+  /** 仅左/右版本存在，没有对应关系、不得计入误差的纸面 id */
+  onlyLeft: string[];
+  onlyRight: string[];
+}
+export interface CompareResult {
+  key: string;
+  correspondence: Correspondence;
+  diffs: FaceDiff[];
+  /** 归一化用的尺度（平展状态包围球半径） */
+  scale: number;
+}

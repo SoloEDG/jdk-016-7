@@ -1,18 +1,21 @@
 import type { Paper, PoseFace, Vec3 } from "../../../shared/types";
 import { rotate, sub, cross, unit } from "../../../shared/vector";
 type Transform = (p: Vec3) => Vec3;
-export function solvePose(
+
+/** 计算每个纸面从原始纸面坐标到当前姿态的完整变换（沿父链累积）。 */
+export function solveTransforms(
   paper: Paper,
   angles: Record<string, number>,
-): PoseFace[] {
+): Map<string, Transform> {
   const transforms = new Map<string, Transform>(),
-    pending = [...paper.faces],
-    result: PoseFace[] = [];
+    pending = [...paper.faces];
   while (pending.length) {
     const i = pending.findIndex((f) => !f.parent || transforms.has(f.parent));
     if (i < 0) throw new Error("纸面连接关系不能成环");
     const f = pending.splice(i, 1)[0]!;
-    const parent: Transform = f.parent ? transforms.get(f.parent)! : (p) => p;
+    const parent: Transform = f.parent
+      ? transforms.get(f.parent)!
+      : (p) => p;
     let transform = parent;
     if (f.hinge && f.crease) {
       const a = parent(f.hinge[0]),
@@ -21,6 +24,18 @@ export function solvePose(
       transform = (p) => rotate(parent(p), a, b, angle);
     }
     transforms.set(f.id, transform);
+  }
+  return transforms;
+}
+
+export function solvePose(
+  paper: Paper,
+  angles: Record<string, number>,
+): PoseFace[] {
+  const transforms = solveTransforms(paper, angles),
+    result: PoseFace[] = [];
+  for (const f of paper.faces) {
+    const transform = transforms.get(f.id)!;
     const points = f.points.map(transform);
     result.push({
       id: f.id,

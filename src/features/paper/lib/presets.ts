@@ -51,6 +51,57 @@ const faces: Face[] = [
     ],
   },
 ];
+/**
+ * 拓扑变体：在原始纸面基础上把区域 c 改编号为 k，并额外增加一个区域 e。
+ * 与前两款相比，a/b/d 仍可按同一原始区域对应，而 k、e 没有对应关系，
+ * 比较时只能斜纹标示、不能计入误差。
+ */
+const variantFaces: Face[] = [
+  faces[0]!,
+  faces[1]!,
+  {
+    id: "k",
+    parent: "b",
+    crease: "c2",
+    hinge: [
+      [-1, 0, -1],
+      [1, 0, 1],
+    ],
+    points: [
+      [-1, 0, -1],
+      [1, 0, 1],
+      [0, 0, 1],
+    ],
+  },
+  {
+    id: "d",
+    parent: "k",
+    crease: "c3",
+    hinge: [
+      [-1, 0, -1],
+      [0, 0, 1],
+    ],
+    points: [
+      [-1, 0, -1],
+      [0, 0, 1],
+      [-1, 0, 1],
+    ],
+  },
+  {
+    id: "e",
+    parent: "k",
+    crease: "c4",
+    hinge: [
+      [1, 0, 1],
+      [0, 0, 1],
+    ],
+    points: [
+      [1, 0, 1],
+      [0, 0, 1],
+      [0.4, 0, 1.6],
+    ],
+  },
+];
 export const papers: Paper[] = [
   {
     id: "shelter",
@@ -109,6 +160,43 @@ export const papers: Paper[] = [
         name: "回廊转角",
         description: "末端纸面沿局部折轴回转。",
         target: 100,
+      },
+    ],
+  },
+  {
+    id: "bloom",
+    name: "层叠花信",
+    subtitle: "拓扑变体 · 4 道折痕",
+    size: 190,
+    faces: variantFaces,
+    creases: [
+      {
+        id: "c1",
+        face: "b",
+        name: "第一道山脊",
+        description: "右侧相邻纸面围绕中轴旋转。",
+        target: 90,
+      },
+      {
+        id: "c2",
+        face: "k",
+        name: "对角深折",
+        description: "换了编号的区域沿对角线折叠，与他款无一一对应。",
+        target: 60,
+      },
+      {
+        id: "c3",
+        face: "d",
+        name: "侧翼回折",
+        description: "末端纸面沿局部折轴回转。",
+        target: -70,
+      },
+      {
+        id: "c4",
+        face: "e",
+        name: "新增花瓣",
+        description: "此款纸独有的附加区域，比较时不计入误差。",
+        target: 45,
       },
     ],
   },

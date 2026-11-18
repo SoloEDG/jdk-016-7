@@ -1,22 +1,34 @@
-import type { Document } from "../../../shared/types";
+import type { Document, View } from "../../../shared/types";
 import { clamp } from "../../../shared/document";
-export function setView(doc: Document, preset: string) {
+
+export function setViewFor(view: View, preset: string) {
   if (preset === "top") {
-    doc.view.yaw = 0;
-    doc.view.pitch = 90;
+    view.yaw = 0;
+    view.pitch = 90;
   } else if (preset === "front") {
-    doc.view.yaw = 0;
-    doc.view.pitch = 15;
+    view.yaw = 0;
+    view.pitch = 15;
   } else {
-    doc.view.yaw = -35;
-    doc.view.pitch = 50;
+    view.yaw = -35;
+    view.pitch = 50;
   }
-  doc.view.zoom = 1;
+  view.zoom = 1;
+}
+export function orbitView(view: View, dx: number, dy: number) {
+  view.yaw += dx * 0.45;
+  view.pitch = clamp(view.pitch + dy * 0.35, -85, 90);
+}
+export function zoomView(view: View, delta: number) {
+  view.zoom = clamp(view.zoom + delta, 0.5, 2.2);
+}
+
+/* 兼容单稿模式：作用于文档自身的视角 */
+export function setView(doc: Document, preset: string) {
+  setViewFor(doc.view, preset);
 }
 export function orbit(doc: Document, dx: number, dy: number) {
-  doc.view.yaw += dx * 0.45;
-  doc.view.pitch = clamp(doc.view.pitch + dy * 0.35, -85, 90);
+  orbitView(doc.view, dx, dy);
 }
 export function zoom(doc: Document, delta: number) {
-  doc.view.zoom = clamp(doc.view.zoom + delta, 0.5, 2.2);
+  zoomView(doc.view, delta);
 }
